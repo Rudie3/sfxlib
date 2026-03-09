@@ -303,10 +303,24 @@ header p {
 }
 
 .waveform-inline {
-  flex: 1;
-  min-width: 200px;
+  flex: 0 0 300px;
+  width: 300px;
   margin-left: auto;
+  margin-right: 12px;
   overflow: hidden;
+}
+
+.file-current-duration {
+  min-width: 46px;
+  text-align: right;
+  font-size: 0.8rem;
+  opacity: 0.85;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.file-current-duration-right {
+  margin-left: auto;
 }
 
 .file-name {
@@ -320,6 +334,24 @@ header p {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.file-sub-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.file-sub-row .file-sub {
+  flex: 1;
+  min-width: 0;
+}
+
+.file-duration {
+  font-size: 0.78rem;
+  opacity: 0.8;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
 }
 
 .waveform {
@@ -417,5 +449,14 @@ header p {
 
   .tag-actions {
     flex-direction: column;
+  }
+
+  .file-sub-row {
+    gap: 6px;
+  }
+
+  .waveform-inline {
+    flex-basis: 200px;
+    width: 200px;
   }
 }

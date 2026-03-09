@@ -1,6 +1,23 @@
 import { useEffect, useMemo, useState } from 'react';
 import WaveformPlayer from './WaveformPlayer';
 
+function formatDuration(seconds) {
+  if (!Number.isFinite(seconds) || seconds < 0) {
+    return '--:--';
+  }
+
+  const rounded = Math.floor(seconds);
+  const hours = Math.floor(rounded / 3600);
+  const minutes = Math.floor((rounded % 3600) / 60);
+  const secs = rounded % 60;
+
+  if (hours > 0) {
+    return `${hours}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  }
+
+  return `${minutes}:${String(secs).padStart(2, '0')}`;
+}
+
 export default function FileRow({
   file,
   expanded,
@@ -21,6 +38,12 @@ export default function FileRow({
   }, [allTags, file.tags]);
 
   const [selectedTagIds, setSelectedTagIds] = useState(fileTagIds);
+  const formattedDuration = useMemo(() => formatDuration(file.duration_seconds), [file.duration_seconds]);
+  const currentPlayDuration = useMemo(() => {
+    const totalDuration = Number(file.duration_seconds);
+    const safeProgress = Math.max(0, Math.min(Number(progress) || 0, 1));
+    return formatDuration(totalDuration * safeProgress);
+  }, [file.duration_seconds, progress]);
 
   useEffect(() => {
     setSelectedTagIds(fileTagIds);
@@ -62,13 +85,24 @@ export default function FileRow({
         </button>
         <div className="file-meta">
           <div className="file-name">{file.name}</div>
-          <div className="file-sub">{file.relative_path}</div>
+          <div className="file-sub-row">
+            <span className="file-sub">{file.relative_path}</span>
+            <span className="file-duration" title="Duration">
+              {formattedDuration}
+            </span>
+          </div>
         </div>
         {expanded && (
           <div className="waveform-inline">
             <WaveformPlayer peaks={file.waveform || []} progress={progress} onSeek={onSeek} />
           </div>
         )}
+        <span
+          className={`file-current-duration${expanded ? '' : ' file-current-duration-right'}`}
+          title="Current play position"
+        >
+          {currentPlayDuration}
+        </span>
       </div>
       {showTags ? (
         <>
