@@ -28,6 +28,7 @@ function DirectoryNode({
   onPlayPause,
   onRevealInExplorer,
   playingFileId,
+  activePlaybackFileId,
   progress,
   onSeek,
   allTags,
@@ -59,7 +60,7 @@ function DirectoryNode({
           onPlayPause={() => onPlayPause(node.id)}
           onRevealInExplorer={() => onRevealInExplorer(node.id)}
           isPlaying={playingFileId === node.id}
-          progress={playingFileId === node.id ? progress : 0}
+          progress={activePlaybackFileId === node.id ? progress : 0}
           onSeek={(event) => onSeek(node.id, event)}
           allTags={allTags}
           onCreateTag={onCreateTag}
@@ -84,6 +85,7 @@ function DirectoryNode({
               onPlayPause={onPlayPause}
               onRevealInExplorer={onRevealInExplorer}
               playingFileId={playingFileId}
+              activePlaybackFileId={activePlaybackFileId}
               progress={progress}
               onSeek={onSeek}
               allTags={allTags}

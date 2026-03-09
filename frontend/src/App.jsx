@@ -31,6 +31,7 @@ export default function App() {
   const [setupError, setSetupError] = useState('');
   const [fileDetails, setFileDetails] = useState({});
   const [selectedTagFilters, setSelectedTagFilters] = useState([]);
+  const [activePlaybackFileId, setActivePlaybackFileId] = useState(null);
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const saved = localStorage.getItem('theme');
     return saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches);
@@ -90,6 +91,7 @@ export default function App() {
 
     const onEnded = () => {
       setPlayingFileId(null);
+      setActivePlaybackFileId(null);
       setPlaybackProgress(0);
     };
 
@@ -101,7 +103,7 @@ export default function App() {
       audio.removeEventListener('ended', onEnded);
       audio.pause();
     };
-  }, [setPlaybackProgress, setPlayingFileId]);
+  }, [setActivePlaybackFileId, setPlaybackProgress, setPlayingFileId]);
 
   const handleSetup = async (rootPath) => {
     try {
@@ -120,6 +122,9 @@ export default function App() {
 
     if (playingFileId === fileId) {
       audio.pause();
+      if (audio.duration && !Number.isNaN(audio.duration)) {
+        setPlaybackProgress(audio.currentTime / audio.duration);
+      }
       setPlayingFileId(null);
       return;
     }
@@ -129,13 +134,19 @@ export default function App() {
       setFileDetails((prev) => ({ ...prev, [fileId]: details }));
     }
 
-    audio.src = streamUrl(fileId);
+    // Only replace the source when switching files so play can resume from pause.
+    if (activePlaybackFileId !== fileId) {
+      audio.src = streamUrl(fileId);
+      setPlaybackProgress(0);
+    }
+
     await audio.play();
+    setActivePlaybackFileId(fileId);
     setPlayingFileId(fileId);
   };
 
   const handleSeek = (fileId, event) => {
-    if (playingFileId !== fileId) {
+    if (activePlaybackFileId !== fileId) {
       return;
     }
 
@@ -353,6 +364,7 @@ export default function App() {
         onPlayPause={handlePlayPause}
         onRevealInExplorer={handleRevealInExplorer}
         playingFileId={playingFileId}
+        activePlaybackFileId={activePlaybackFileId}
         progress={playbackProgress}
         onSeek={handleSeek}
         allTags={tags}
