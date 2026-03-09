@@ -6,6 +6,7 @@ function DirectoryNode({
   depth,
   fileDetails,
   onPlayPause,
+  onRevealInExplorer,
   playingFileId,
   progress,
   onSeek,
@@ -29,6 +30,7 @@ function DirectoryNode({
           file={details}
           expanded
           onPlayPause={() => onPlayPause(node.id)}
+          onRevealInExplorer={() => onRevealInExplorer(node.id)}
           isPlaying={playingFileId === node.id}
           progress={playingFileId === node.id ? progress : 0}
           onSeek={(event) => onSeek(node.id, event)}
@@ -53,6 +55,7 @@ function DirectoryNode({
               depth={depth + 1}
               fileDetails={fileDetails}
               onPlayPause={onPlayPause}
+              onRevealInExplorer={onRevealInExplorer}
               playingFileId={playingFileId}
               progress={progress}
               onSeek={onSeek}

@@ -21,6 +21,7 @@ export const api = {
   getStatus: () => request('/setup/status'),
   getTree: () => request('/files/tree'),
   getFile: (id) => request(`/files/${id}`),
+  revealFile: (id) => request(`/files/${id}/reveal`, { method: 'POST' }),
   search: (query, mode) => request(`/search?q=${encodeURIComponent(query)}&mode=${encodeURIComponent(mode)}`),
   listTags: () => request('/tags'),
   upsertTag: (payload) => request('/tags', { method: 'POST', body: JSON.stringify(payload) }),

@@ -5,6 +5,7 @@ export default function FileRow({
   file,
   expanded,
   onPlayPause,
+  onRevealInExplorer,
   isPlaying,
   progress,
   onSeek,
@@ -44,6 +45,9 @@ export default function FileRow({
       <div className="file-row-top">
         <button type="button" onClick={onPlayPause}>
           {isPlaying ? 'Pause' : 'Play'}
+        </button>
+        <button type="button" onClick={onRevealInExplorer}>
+          Show in folder
         </button>
         <div className="file-meta">
           <div className="file-name">{file.name}</div>

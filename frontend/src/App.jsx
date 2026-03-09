@@ -132,6 +132,14 @@ export default function App() {
     audio.currentTime = Math.max(0, Math.min(1, ratio)) * (audio.duration || 0);
   };
 
+  const handleRevealInExplorer = async (fileId) => {
+    try {
+      await api.revealFile(fileId);
+    } catch (err) {
+      console.error('Reveal in explorer failed:', err);
+    }
+  };
+
   const handleSearch = async (query, mode) => {
     if (!query.trim()) {
       setSearchResults(null);
@@ -254,6 +262,7 @@ export default function App() {
         tree={visibleTree}
         fileDetails={fileDetails}
         onPlayPause={handlePlayPause}
+        onRevealInExplorer={handleRevealInExplorer}
         playingFileId={playingFileId}
         progress={playbackProgress}
         onSeek={handleSeek}
