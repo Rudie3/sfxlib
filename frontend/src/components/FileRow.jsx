@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import WaveformPlayer from './WaveformPlayer';
 
 export default function FileRow({
@@ -14,21 +14,23 @@ export default function FileRow({
   onApplyTags,
 }) {
   const [newTagName, setNewTagName] = useState('');
-  const [selectedTagIds, setSelectedTagIds] = useState([]);
   const [showTags, setShowTags] = useState(false);
 
   const fileTagIds = useMemo(() => {
     return allTags.filter((tag) => file.tags?.includes(tag.name)).map((tag) => tag.id);
   }, [allTags, file.tags]);
 
-  const effectiveTagIds = selectedTagIds.length > 0 ? selectedTagIds : fileTagIds;
+  const [selectedTagIds, setSelectedTagIds] = useState(fileTagIds);
+
+  useEffect(() => {
+    setSelectedTagIds(fileTagIds);
+  }, [fileTagIds]);
 
   const toggleTag = (tagId) => {
     setSelectedTagIds((prev) => {
-      if (prev.includes(tagId)) {
-        return prev.filter((id) => id !== tagId);
-      }
-      return [...prev, tagId];
+      const next = prev.includes(tagId) ? prev.filter((id) => id !== tagId) : [...prev, tagId];
+      void onApplyTags(file.id, next);
+      return next;
     });
   };
 
@@ -72,7 +74,7 @@ export default function FileRow({
         <>
           <div className="tag-list">
             {allTags.map((tag) => {
-              const checked = effectiveTagIds.includes(tag.id);
+              const checked = selectedTagIds.includes(tag.id);
               return (
                 <label key={tag.id}>
                   <input type="checkbox" checked={checked} onChange={() => toggleTag(tag.id)} />
@@ -89,9 +91,6 @@ export default function FileRow({
             />
             <button type="button" onClick={handleCreateTag}>
               Add tag
-            </button>
-            <button type="button" onClick={() => onApplyTags(file.id, effectiveTagIds)}>
-              Save tags
             </button>
           </div>
         </>
