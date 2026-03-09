@@ -213,8 +213,33 @@ header p {
   gap: 6px;
 }
 
+.file-row-top button {
+  min-width: 32px;
+  width: 32px;
+  height: 32px;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.file-row-top button.active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
 .file-meta {
   overflow: hidden;
+  min-width: 0;
+  flex-shrink: 1;
+}
+
+.waveform-inline {
+  flex: 1;
+  min-width: 200px;
+  margin-left: auto;
 }
 
 .file-name {
@@ -231,14 +256,14 @@ header p {
 }
 
 .waveform {
-  margin-top: 8px;
-  min-height: 48px;
+  min-height: 32px;
+  height: 32px;
   display: flex;
   align-items: flex-end;
-  gap: 2px;
+  gap: 1px;
   border: 1px solid var(--border);
   border-radius: 6px;
-  padding: 6px;
+  padding: 4px;
   background: var(--surface-strong);
   cursor: pointer;
   transition: all 0.2s ease;
@@ -246,6 +271,10 @@ header p {
 
 .waveform:hover {
   border-color: var(--accent);
+}
+
+.waveform-inline .waveform {
+  margin: 0;
 }
 
 .waveform-bar {

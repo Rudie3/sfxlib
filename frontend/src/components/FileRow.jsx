@@ -15,6 +15,7 @@ export default function FileRow({
 }) {
   const [newTagName, setNewTagName] = useState('');
   const [selectedTagIds, setSelectedTagIds] = useState([]);
+  const [showTags, setShowTags] = useState(false);
 
   const fileTagIds = useMemo(() => {
     return allTags.filter((tag) => file.tags?.includes(tag.name)).map((tag) => tag.id);
@@ -43,20 +44,32 @@ export default function FileRow({
   return (
     <div className="file-row">
       <div className="file-row-top">
-        <button type="button" onClick={onPlayPause}>
-          {isPlaying ? 'Pause' : 'Play'}
+        <button type="button" onClick={onPlayPause} title={isPlaying ? 'Pause' : 'Play'}>
+          {isPlaying ? '⏸' : '▶'}
         </button>
-        <button type="button" onClick={onRevealInExplorer}>
-          Show in folder
+        <button type="button" onClick={onRevealInExplorer} title="Show in folder">
+          📁
+        </button>
+        <button 
+          type="button" 
+          onClick={() => setShowTags(!showTags)} 
+          title="Toggle tags"
+          className={showTags ? 'active' : ''}
+        >
+          🏷️
         </button>
         <div className="file-meta">
           <div className="file-name">{file.name}</div>
           <div className="file-sub">{file.relative_path}</div>
         </div>
+        {expanded && (
+          <div className="waveform-inline">
+            <WaveformPlayer peaks={file.waveform || []} progress={progress} onSeek={onSeek} />
+          </div>
+        )}
       </div>
-      {expanded ? (
+      {showTags ? (
         <>
-          <WaveformPlayer peaks={file.waveform || []} progress={progress} onSeek={onSeek} />
           <div className="tag-list">
             {allTags.map((tag) => {
               const checked = effectiveTagIds.includes(tag.id);
