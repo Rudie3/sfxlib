@@ -30,7 +30,20 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [setupError, setSetupError] = useState('');
   const [fileDetails, setFileDetails] = useState({});
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const saved = localStorage.getItem('theme');
+    return saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  });
   const audioRef = useRef(new Audio());
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', isDarkMode);
+    localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+  }, [isDarkMode]);
+
+  const toggleTheme = () => {
+    setIsDarkMode(prev => !prev);
+  };
 
   useEffect(() => {
     const bootstrap = async () => {
@@ -243,6 +256,14 @@ export default function App() {
             className="reindex-button"
           >
             Re-index
+          </button>
+          <button 
+            type="button" 
+            onClick={toggleTheme}
+            className="theme-toggle"
+            title={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {isDarkMode ? '☀️' : '🌙'}
           </button>
         </div>
       </header>
