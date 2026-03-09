@@ -240,6 +240,7 @@ header p {
   flex: 1;
   min-width: 200px;
   margin-left: auto;
+  overflow: hidden;
 }
 
 .file-name {
@@ -256,8 +257,8 @@ header p {
 }
 
 .waveform {
-  min-height: 32px;
-  height: 32px;
+  min-height: 36px;
+  height: 36px;
   display: flex;
   align-items: flex-end;
   gap: 1px;
@@ -267,6 +268,8 @@ header p {
   background: var(--surface-strong);
   cursor: pointer;
   transition: all 0.2s ease;
+  overflow: hidden;
+  min-width: 0;
 }
 
 .waveform:hover {
@@ -279,13 +282,16 @@ header p {
 
 .waveform-bar {
   width: 3px;
+  min-height: 4px;
   border-radius: 2px;
   background: var(--border);
-  transition: background 0.2s ease;
+  opacity: 0.85;
+  transition: background 0.2s ease, opacity 0.2s ease;
 }
 
 .waveform-bar.filled {
   background: var(--accent);
+  opacity: 1;
 }
 
 .tag-list {
