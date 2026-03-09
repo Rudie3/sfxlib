@@ -200,6 +200,17 @@ export default function App() {
     setFileDetails((prev) => ({ ...prev, [fileId]: details }));
   };
 
+  const handleReindex = async () => {
+    try {
+      await api.reindex();
+      const [treeInfo, status] = await Promise.all([api.getTree(), api.getStatus()]);
+      setTree(treeInfo.tree);
+      setIndexingStatus(status);
+    } catch (err) {
+      console.error('Reindex failed:', err);
+    }
+  };
+
   if (loading) {
     return <div className="loading">Loading...</div>;
   }
@@ -213,9 +224,19 @@ export default function App() {
       <header>
         <h1>sfxlib</h1>
         <p>{setup.rootPath}</p>
-        {indexingStatus?.indexing ? (
-          <p className="indexing">Indexing {indexingStatus.indexedCount}/{indexingStatus.scannedCount}</p>
-        ) : null}
+        <div className="header-actions">
+          {indexingStatus?.indexing ? (
+            <p className="indexing">Indexing {indexingStatus.indexedCount}/{indexingStatus.scannedCount}</p>
+          ) : null}
+          <button 
+            type="button" 
+            onClick={handleReindex}
+            disabled={indexingStatus?.indexing}
+            className="reindex-button"
+          >
+            Re-index
+          </button>
+        </div>
       </header>
 
       <SearchBar

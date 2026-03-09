@@ -44,6 +44,30 @@ header p {
   margin: 6px 0;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.reindex-button {
+  border: 1px solid #aa9a84;
+  border-radius: 10px;
+  background: var(--surface-strong);
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+.reindex-button:hover:not(:disabled) {
+  background: #e7d4ba;
+}
+
+.reindex-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .search-bar {
   display: flex;
   gap: 10px;
