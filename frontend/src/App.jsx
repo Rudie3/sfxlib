@@ -30,6 +30,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [setupError, setSetupError] = useState('');
   const [fileDetails, setFileDetails] = useState({});
+  const [selectedTagFilters, setSelectedTagFilters] = useState([]);
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const saved = localStorage.getItem('theme');
     return saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches);
@@ -190,18 +191,74 @@ export default function App() {
     return null;
   };
 
+  const collectFilesFromTree = (node) => {
+    if (!node) {
+      return [];
+    }
+
+    if (node.type === 'file') {
+      return [node];
+    }
+
+    return (node.children || []).flatMap((child) => collectFilesFromTree(child));
+  };
+
+  const allFiles = useMemo(() => collectFilesFromTree(tree), [tree]);
+
+  const filesById = useMemo(
+    () => new Map(allFiles.map((file) => [file.id, file])),
+    [allFiles],
+  );
+
+  const searchScopedFiles = useMemo(() => {
+    if (!searchResults) {
+      return allFiles;
+    }
+
+    return searchResults.map((item) => filesById.get(item.id) || item);
+  }, [allFiles, filesById, searchResults]);
+
+  const tagCounts = useMemo(() => {
+    const counts = new Map();
+
+    for (const tag of tags) {
+      counts.set(tag.name, 0);
+    }
+
+    for (const file of searchScopedFiles) {
+      for (const tagName of file.tags || []) {
+        counts.set(tagName, (counts.get(tagName) || 0) + 1);
+      }
+    }
+
+    return Array.from(counts.entries())
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [searchScopedFiles, tags]);
+
+  const filteredFiles = useMemo(() => {
+    if (!selectedTagFilters.length) {
+      return searchScopedFiles;
+    }
+
+    return searchScopedFiles.filter((file) =>
+      selectedTagFilters.some((tagName) => (file.tags || []).includes(tagName)),
+    );
+  }, [searchScopedFiles, selectedTagFilters]);
+
+  useEffect(() => {
+    const knownTags = new Set(tags.map((tag) => tag.name));
+    setSelectedTagFilters((prev) => prev.filter((name) => knownTags.has(name)));
+  }, [tags]);
+
   const visibleTree = useMemo(() => {
     if (!tree) {
       return null;
     }
 
-    if (!searchResults) {
-      return tree;
-    }
-
-    const allowedIds = new Set(searchResults.map((item) => item.id));
+    const allowedIds = new Set(filteredFiles.map((item) => item.id));
     return filterTreeByResults(tree, allowedIds);
-  }, [tree, searchResults]);
+  }, [tree, filteredFiles]);
 
   const refreshTagsAndTree = async () => {
     const [tagInfo, treeInfo] = await Promise.all([api.listTags(), api.getTree()]);
@@ -230,6 +287,12 @@ export default function App() {
     } catch (err) {
       console.error('Reindex failed:', err);
     }
+  };
+
+  const handleToggleTagFilter = (tagName) => {
+    setSelectedTagFilters((prev) =>
+      prev.includes(tagName) ? prev.filter((name) => name !== tagName) : [...prev, tagName],
+    );
   };
 
   if (loading) {
@@ -273,9 +336,14 @@ export default function App() {
         onChange={setSearchQuery}
         mode={searchMode}
         onModeChange={setSearchMode}
+        soundCount={filteredFiles.length}
+        tagCounts={tagCounts}
+        selectedTagNames={selectedTagFilters}
+        onToggleTagFilter={handleToggleTagFilter}
         onClear={() => {
           setSearchQuery('');
           setSearchResults(null);
+          setSelectedTagFilters([]);
         }}
       />
 
