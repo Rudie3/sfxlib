@@ -108,17 +108,26 @@ async function indexLibrary(rootPath) {
   indexState.scannedCount = 0;
   indexState.lastError = null;
 
-  const trx = db.transaction(() => {
-    db.prepare('DELETE FROM files').run();
-  });
-  trx();
-
   try {
     const paths = await walk(rootPath);
     indexState.scannedCount = paths.length;
 
+    // Track all indexed paths
+    const indexedPaths = new Set();
+
     for (const absolutePath of paths) {
       await indexSingleFile(rootPath, absolutePath);
+      indexedPaths.add(absolutePath);
+    }
+
+    // Delete files that no longer exist on disk
+    const existingFiles = db.prepare('SELECT id, absolute_path FROM files').all();
+    const deleteStmt = db.prepare('DELETE FROM files WHERE id = ?');
+    
+    for (const file of existingFiles) {
+      if (!indexedPaths.has(file.absolute_path)) {
+        deleteStmt.run(file.id);
+      }
     }
 
     indexState.indexing = false;
